@@ -543,7 +543,6 @@
                 this.setupKeyboard();
                 this.setupDots();
                 this.hideHintOnScroll();
-                this.setupEditableText();
             }
             setupObserver() {
                 const obs = new IntersectionObserver(entries => {
@@ -596,15 +595,6 @@
                         hint.style.opacity = '0';
                         hidden = true;
                     }
-                });
-            }
-            setupEditableText() {
-                const textElements = document.querySelectorAll('h1, h2, h3, p, .label, .big-num, td, th');
-                textElements.forEach(el => {
-                    el.setAttribute('contenteditable', 'true');
-                    el.style.outline = 'none';
-                    el.addEventListener('focus', () => el.style.background = 'rgba(255,255,255,0.05)');
-                    el.addEventListener('blur', () => el.style.background = 'transparent');
                 });
             }
         }
