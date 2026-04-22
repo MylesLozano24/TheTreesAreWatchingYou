@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hunter Radar Pitch Deck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&amp;family=Oswald:wght@500;700&amp;family=Noto+Sans+SC:wght@400;500;700&amp;display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg-primary: #16241D; 
+            --bg-secondary: #213329; 
+            --accent: #F96C00; 
+            --accent-dim: rgba(249, 108, 0, 0.2);
+            --text-primary: #EBEFEA; 
+            --text-secondary: rgba(235, 239, 234, 0.8);
+            --font-display: 'Oswald', 'Noto Sans SC', sans-serif; 
+            --font-body: 'Outfit', 'Noto Sans SC', sans-serif; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body { margin: 0; padding: 0; height: 100%; overflow-x: hidden; background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+        .slide {
+            width: 100vw; height: 100vh; height: 100dvh;
+            scroll-snap-align: start;
+            position: relative; display: flex;
+            align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        .noise-overlay {
+            position: absolute; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 1;
+        }
+
+        .slide-inner {
+            width: 1280px; height: 720px;
+            box-sizing: border-box; 
+            flex-shrink: 0; 
+            position: relative;
+            transform-origin: center center;
+            display: flex; flex-direction: column;
+            padding: 48px 56px;
+            z-index: 10;
+        }
+
+        .slide-content {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .nav-dots {
+            position: fixed; right: 24px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 10px; z-index: 100;
+        }
+        .dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: rgba(255,255,255,0.3); cursor: pointer; transition: all 0.3s;
+        }
+        .dot.active { background: var(--accent); transform: scale(1.3); }
+
+        .keyboard-hint {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            font-size: 13px; color: var(--text-secondary); z-index: 100;
+            transition: opacity 0.5s; pointer-events: none; font-family: var(--font-body); letter-spacing: 1px; text-transform: uppercase;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; line-height: 1.1; margin-bottom: 24px; text-transform: uppercase; }
+        h1 { font-size: 96px; letter-spacing: 2px; }
+        h2 { font-size: 56px; color: var(--text-primary); letter-spacing: 1px; }
+        h3 { font-size: 32px; letter-spacing: 1px; }
+        p { font-size: 22px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
+        ul { font-size: 22px; color: var(--text-secondary); line-height: 1.6; margin-left: 24px; margin-bottom: 20px; }
+        li { margin-bottom: 12px; }
+        
+        .label {
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: 18px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .accent-text {
+            color: var(--accent);
+        }
+
+        .deco-line { width: 60px; height: 4px; background: var(--accent); margin-bottom: 24px; }
+
+        /* Layouts */
+        .split-50 { display: flex; flex-direction: row; gap: 60px; align-items: center; height: 100%; }
+        .split-50 > div { flex: 1; }
+        
+        .split-40-60 { display: flex; flex-direction: row; gap: 60px; align-items: center; height: 100%; }
+        .col-40 { width: 40%; }
+        .col-60 { width: 60%; }
+
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; }
+        .grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border-top: 4px solid var(--accent);
+            padding: 24px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+        .card h3 { margin-bottom: 8px; font-size: 22px; }
+        .card p { margin-bottom: 0; font-size: 18px; line-height: 1.4; }
+        .card .big-num { font-family: var(--font-display); font-size: 56px; color: var(--accent); margin-bottom: 12px; font-weight: 700; line-height: 1; }
+
+        /* Competition Table */
+        .comp-table { width: 100%; border-collapse: collapse; margin-top: 32px; background: var(--bg-secondary); border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .comp-table th { font-family: var(--font-display); color: var(--text-primary); text-align: left; padding: 20px 24px; border-bottom: 2px solid rgba(255,255,255,0.1); font-size: 20px; letter-spacing: 1px; background: rgba(0,0,0,0.2); }
+        .comp-table td { padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 20px; color: var(--text-secondary); }
+        .comp-table tr:last-child td { border-bottom: none; }
+        .comp-table .us { color: var(--text-primary); font-weight: 700; background: rgba(249, 108, 0, 0.15); }
+        .comp-table th.us { color: var(--accent); }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+        .reveal-scale { opacity: 0; transform: scale(0.95); transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .slide.visible .reveal-scale { opacity: 1; transform: scale(1); }
+        
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+        .delay-4 { transition-delay: 0.4s; }
+        .delay-5 { transition-delay: 0.5s; }
+
+        @media (max-width: 767px) {
+            html { scroll-snap-type: none; }
+            .slide { height: auto; min-height: 100svh; overflow: visible; scroll-snap-align: none; align-items: center; }
+            .slide-inner { width: 100% !important; height: auto !important; transform: none !important; padding: clamp(24px, 5vw, 40px); }
+            .slide-content { overflow: visible; }
+            .nav-dots { display: none; }
+            .split-50, .split-40-60 { flex-direction: column; gap: 32px; }
+            .col-40, .col-60, .split-50 > div { width: 100%; }
+            .grid-3, .grid-4, .grid-6 { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+            html { scroll-behavior: auto; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-dots"></nav>
+
+    <!-- Slide 1: Title -->
+    <section class="slide">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content" style="align-items: center; text-align: center;">
+                <div class="label reveal">TriPoint Innovations</div>
+                <div class="deco-line reveal delay-1" style="margin: 0 auto 24px;"></div>
+                <h1 class="reveal delay-1 accent-text" style="font-size: 110px; margin-bottom: 16px;">HUNTER RADAR</h1>
+                <p class="reveal delay-2" style="font-size: 32px; color: var(--text-primary); font-weight: 500; margin-bottom: 16px;">Hunter Safety Device and App</p>
+                <p class="reveal delay-3" style="max-width: 800px; margin: 0 auto; font-size: 24px;">Reliable location awareness for hunters anywhere, even with no service.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 2: The Problem -->
+    <section class="slide">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content split-50">
+                <div class="reveal">
+                    <div class="label">01 // The Problem</div>
+                    <div class="deco-line"></div>
+                    <h2>Going dark in the field shouldn't mean staying dark.</h2>
+                </div>
+                <div>
+                    <div class="card reveal-scale delay-1" style="margin-bottom: 24px;">
+                        <h3 class="accent-text">9,000+</h3>
+                        <p>Hunters go missing each year, and 500 shooting incidents occur due to poor visibility and lack of communication.</p>
+                    </div>
+                    <div class="card reveal-scale delay-2">
+                        <h3 class="accent-text">$300+</h3>
+                        <p>Current GPS solutions cost over $300 plus monthly fees, and standard smartphones fail in zero-cell service environments.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: Our Solution -->
+    <section class="slide" style="background: var(--bg-secondary);">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content split-40-60">
+                <div class="col-40 reveal">
+                    <div class="label">02 // Our Solution</div>
+                    <div class="deco-line"></div>
+                    <h2>Connected.<br>Anywhere.</h2>
+                    <p>Our affordable radio-frequency device pairs with a mobile app to provide real-time offline tracking and SOS alerts.</p>
+                </div>
+                <div class="col-60 grid-4" style="gap: 20px;">
+                    <div class="card reveal-scale delay-1" style="background: var(--bg-primary);">
+                        <div class="label">01</div>
+                        <h3>Offline Comms</h3>
+                        <p>Stay in touch without cell service via radio-linked mesh networks.</p>
+                    </div>
+                    <div class="card reveal-scale delay-2" style="background: var(--bg-primary);">
+                        <div class="label">02</div>
+                        <h3>Real-time Location</h3>
+                        <p>Group safety tracking so you always know where your party is.</p>
+                    </div>
+                    <div class="card reveal-scale delay-3" style="background: var(--bg-primary);">
+                        <div class="label">03</div>
+                        <h3>SOS Alerts</h3>
+                        <p>Immediate emergency broadcasting when you need help most.</p>
+                    </div>
+                    <div class="card reveal-scale delay-4" style="background: var(--bg-primary);">
+                        <div class="label">04</div>
+                        <h3>Power Bank</h3>
+                        <p>Built-in phone charger for extended field use and reliability.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: Market Opportunity -->
+    <section class="slide">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content" style="justify-content: flex-start; padding-top: 60px;">
+                <div class="reveal" style="text-align: center; margin-bottom: 60px;">
+                    <div class="label">03 // Market Opportunity</div>
+                    <div class="deco-line" style="margin: 0 auto 24px;"></div>
+                    <h2>The Outdoor Safety Market</h2>
+                </div>
+                <div class="grid-3 reveal-scale delay-1">
+                    <div class="card" style="text-align: center; padding: 60px 30px;">
+                        <div class="label">Total Addressable Market</div>
+                        <div class="big-num">$10B–$12B</div>
+                        <p>Global Outdoor Tech</p>
+                    </div>
+                    <div class="card" style="text-align: center; padding: 60px 30px;">
+                        <div class="label">Serviceable Addressable</div>
+                        <div class="big-num">$2B–$3B</div>
+                        <p>US Hunting Equipment</p>
+                    </div>
+                    <div class="card" style="text-align: center; padding: 60px 30px; border-top-color: #EBEFEA;">
+                        <div class="label" style="color: #EBEFEA;">Serviceable Obtainable</div>
+                        <div class="big-num" style="color: #EBEFEA;">$1.2M–$3M</div>
+                        <p style="color: rgba(235,239,234,0.8);">Initial Target Capture</p>
+                    </div>
+                </div>
+                <p class="reveal delay-2" style="text-align: center; font-size: 14px; margin-top: 40px; text-transform: uppercase; letter-spacing: 1px;">Source: Global Insight Services, Ken Research, Future Market Insights</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: Business Model -->
+    <section class="slide">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content split-40-60">
+                <div class="col-40 reveal">
+                    <div class="label">04 // Business Model</div>
+                    <div class="deco-line"></div>
+                    <h2>Hardware + Service</h2>
+                    <p>We drive profitability through a dual-revenue stream model that combines high-margin hardware sales with recurring digital service fees.</p>
+                </div>
+                <div class="col-60">
+                    <div class="card reveal-scale delay-1" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <div class="label" style="margin-bottom: 8px;">Hardware Device</div>
+                            <p style="margin-bottom: 0;">Affordable radio-linked tracker.</p>
+                        </div>
+                        <div class="big-num" style="margin-bottom: 0;">$79</div>
+                    </div>
+                    <div class="card reveal-scale delay-2" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <div class="label" style="margin-bottom: 8px;">Monthly App Sub</div>
+                            <p style="margin-bottom: 0;">Real-time safety alerts.</p>
+                        </div>
+                        <div class="big-num" style="margin-bottom: 0;">$5</div>
+                    </div>
+                    <div class="card reveal-scale delay-3" style="display: flex; align-items: center; justify-content: space-between; border-top-color: #EBEFEA; background: var(--accent);">
+                        <div>
+                            <div class="label" style="margin-bottom: 8px; color: #FFF;">Gross Margin</div>
+                            <p style="margin-bottom: 0; color: rgba(255,255,255,0.9);">High-margin integrated sales.</p>
+                        </div>
+                        <div class="big-num" style="margin-bottom: 0; color: #FFF;">65%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 6: Competition -->
+    <section class="slide" style="background: var(--bg-secondary);">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content" style="justify-content: flex-start; padding-top: 40px;">
+                <div class="reveal">
+                    <div class="label">05 // Competition</div>
+                    <div class="deco-line"></div>
+                    <h2 style="font-size: 48px; margin-bottom: 30px;">Setting a New Standard</h2>
+                </div>
+                <div class="reveal-scale delay-1">
+                    <table class="comp-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>OnX Hunt</th>
+                                <th>Life360</th>
+                                <th>GoTenna</th>
+                                <th class="us">Hunter Radar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Monthly Cost (avg)</td>
+                                <td>$20+</td>
+                                <td>$25</td>
+                                <td>$180+</td>
+                                <td class="us">~$11</td>
+                            </tr>
+                            <tr>
+                                <td>Mapping &amp; Data</td>
+                                <td>App Based</td>
+                                <td>App Based</td>
+                                <td>Dedicated Device</td>
+                                <td class="us">App + Hardware</td>
+                            </tr>
+                            <tr>
+                                <td>Offline Real-Time Loc.</td>
+                                <td>No</td>
+                                <td>Limited</td>
+                                <td>Yes</td>
+                                <td class="us">Yes</td>
+                            </tr>
+                            <tr>
+                                <td>SOS Alerts &amp; Mesh</td>
+                                <td>No</td>
+                                <td>No</td>
+                                <td>Yes</td>
+                                <td class="us">Yes</td>
+                            </tr>
+                            <tr>
+                                <td>Cost Efficient</td>
+                                <td>Yes</td>
+                                <td>Yes</td>
+                                <td>No</td>
+                                <td class="us">Yes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="reveal delay-2" style="font-size: 14px; margin-top: 20px; text-transform: uppercase; letter-spacing: 1px;">*Hunter Radar price based on ~$5 monthly app + ~$80 offline device averaged monthly cost.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 7: Traction -->
+    <section class="slide">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content">
+                <div class="reveal" style="text-align: center; margin-bottom: 50px;">
+                    <div class="label">06 // Traction</div>
+                    <div class="deco-line" style="margin: 0 auto 24px;"></div>
+                    <h2>Building Momentum</h2>
+                </div>
+                <div class="grid-4">
+                    <div class="card reveal-scale delay-1">
+                        <div class="label">Intellectual Property</div>
+                        <h3 style="font-size: 24px;">Provisional Patent</h3>
+                        <p style="font-size: 18px;">Filed November 2025</p>
+                    </div>
+                    <div class="card reveal-scale delay-2">
+                        <div class="label">Development</div>
+                        <h3 style="font-size: 24px;">Prototyping &amp; App</h3>
+                        <p style="font-size: 18px;">Creating fully functional app and hardware device</p>
+                    </div>
+                    <div class="card reveal-scale delay-3">
+                        <div class="label">Validation</div>
+                        <h3 style="font-size: 24px;">Customer Discovery</h3>
+                        <p style="font-size: 18px;">Early interest proven; continuing discovery</p>
+                    </div>
+                    <div class="card reveal-scale delay-4">
+                        <div class="label">Programs</div>
+                        <h3 style="font-size: 24px;">Riata Start-up Exp.</h3>
+                        <p style="font-size: 18px;">Pre-accelerator, Biz/Eng Competitions, SBIR/STTR</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 8: Go to Market Strategy -->
+    <section class="slide">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content split-50">
+                <div class="reveal">
+                    <div class="label">07 // GTM Strategy</div>
+                    <div class="deco-line"></div>
+                    <h2>How We Reach Users</h2>
+                    <p>Targeted approaches to capture our core audience quickly and efficiently.</p>
+                </div>
+                <div class="grid-4" style="gap: 20px;">
+                    <div class="card reveal-scale delay-1" style="padding: 40px 30px; text-align: center;">
+                        <h3 style="font-size: 22px; margin-bottom: 0;">Hunting Communities</h3>
+                    </div>
+                    <div class="card reveal-scale delay-2" style="padding: 40px 30px; text-align: center;">
+                        <h3 style="font-size: 22px; margin-bottom: 0px; outline: none;">Retail</h3>
+                    </div>
+                    <div class="card reveal-scale delay-3" style="padding: 40px 30px; text-align: center;">
+                        <h3 style="font-size: 22px; margin-bottom: 0;">Partnerships</h3>
+                    </div>
+                    <div class="card reveal-scale delay-4" style="padding: 40px 30px; text-align: center;">
+                        <h3 style="font-size: 22px; margin-bottom: 0;">Outdoor Influencers</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 9: Development Partners -->
+    <section class="slide" style="background: var(--bg-secondary);">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content split-40-60">
+                <div class="col-40 reveal">
+                    <div class="label">08 // Development</div>
+                    <div class="deco-line"></div>
+                    <h2 style="font-size: 48px;">Backed by Engineering and Experience</h2>
+                    <p>We are partnered with leading institutional resources and specialized talent to bring Hunter Radar to life.</p>
+                </div>
+                <div class="col-60" style="display: flex; flex-direction: column; gap: 24px;">
+                    <div class="card reveal-scale delay-1" style="background: var(--bg-primary); display: flex; align-items: center; gap: 24px; padding: 32px;">
+                        <img src="upload/image_6ov8.png" style="width: 80px; height: 80px; border-radius: 50%; object-fit: contain; background: #fff; padding: 4px; flex-shrink: 0; border: 2px solid var(--accent);" alt="OSU" onerror="this.onerror=null; this.src='images/fallback.svg';">
+                        <div>
+                            <h3 style="font-size: 28px; margin-bottom: 8px;">Oklahoma State NPDC</h3>
+                            <div class="label" style="font-size: 14px; margin-bottom: 12px;">New Product Development Center</div>
+                            <p style="font-size: 18px; margin-top: 8px; line-height: 1.4;">Leveraging university resources for advanced prototyping, testing, and manufacturing assistance.</p>
+                        </div>
+                    </div>
+                    <div class="card reveal-scale delay-2" style="background: var(--bg-primary); display: flex; align-items: center; gap: 24px; padding: 32px;">
+                        <img src="upload/image_fm8y.png" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--accent);" alt="Team" onerror="this.onerror=null; this.src='images/fallback.svg';">
+                        <div>
+                            <h3 style="font-size: 28px; margin-bottom: 8px;">Engineering Core</h3>
+                            <div class="label" style="font-size: 14px; margin-bottom: 12px;">Team of 3 Engineers</div>
+                            <p style="font-size: 18px; margin-top: 8px; line-height: 1.4;">Specialized expertise in Aerospace, Mechanical, Civil, and Chemical Engineering driving our hardware innovation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 10: Financials -->
+    <section class="slide">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content split-50">
+                <div class="reveal">
+                    <div class="label">09 // Financials</div>
+                    <div class="deco-line"></div>
+                    <h2>Path to Profitability</h2>
+                </div>
+                <div class="card reveal-scale delay-1" style="border-left: 4px solid var(--accent); border-top: none;">
+                    <p style="font-size: 24px; line-height: 1.6; margin-bottom: 24px;">For the next 4 years, we predict about a <span class="accent-text" style="font-weight: 700;">20% increase</span> in new buyers each year with an initial capture of <span class="accent-text" style="font-weight: 700;">.1%</span> of our estimated market in our first year of launch.</p>
+                    <p style="font-size: 24px; line-height: 1.6; margin-bottom: 0;">With a conservative profit margin of <span class="accent-text" style="font-weight: 700;">42%</span>, projections say we will hit a <span class="accent-text" style="font-weight: 700;">6 figure yearly profit</span> after the first 3 years since launch.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 11: Vision -->
+    <section class="slide" style="background: var(--accent);">
+        <div class="noise-overlay" style="opacity: 0.15;"></div>
+        <div class="slide-inner">
+            <div class="slide-content" style="text-align: center; max-width: 900px; margin: 0 auto;">
+                <div class="label reveal" style="color: #FFF;">10 // Vision</div>
+                <div class="deco-line reveal delay-1" style="margin: 0 auto 24px; background: #FFF;"></div>
+                <h2 class="reveal delay-1" style="font-size: 72px; margin-bottom: 32px; color: #FFF;">The Essential Outdoor Platform</h2>
+                <p class="reveal delay-2" style="font-size: 32px; color: rgba(255,255,255,0.9); font-weight: 500; margin-bottom: 40px;">Expansion beyond hunting through hiking, ranching, backpacking, etc.</p>
+                <div class="reveal delay-3" style="background: rgba(0,0,0,0.15); padding: 40px; border-radius: 8px;">
+                    <p style="font-size: 24px; font-style: italic; color: #FFF; margin: 0;">"Hunting is about tradition, family, and responsibility. Hunter Radar ensures everyone makes it home. We are setting the standard for outdoor safety."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 12: Ask -->
+    <section class="slide">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content" style="align-items: center; text-align: center;">
+                <div class="card reveal-scale" style="padding: 80px; max-width: 800px; border-color: var(--accent); border-top-width: 8px;">
+                    <div class="label">11 // The Ask</div>
+                    <h2 style="font-size: 56px; margin-bottom: 24px;">Join Our Journey</h2>
+                    <p style="font-size: 26px; color: var(--text-primary); margin-bottom: 0;">Looking for app development help and offline device integration assistance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 13: Q & A -->
+    <section class="slide" style="background: var(--bg-secondary);">
+        <div class="noise-overlay"></div>
+        <div class="slide-inner">
+            <div class="slide-content" style="align-items: center; text-align: center;">
+                <div class="label reveal">TriPoint Innovations</div>
+                <div class="deco-line reveal delay-1" style="margin: 0 auto 24px;"></div>
+                <h1 class="reveal delay-1 accent-text" style="font-size: 140px;">Q &amp; A</h1>
+                <p class="reveal delay-2" style="font-family: var(--font-display); color: var(--text-primary); margin-top: 40px; letter-spacing: 2px; font-size: 32px; text-transform: uppercase;">Thank You</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="keyboard-hint">Use ↑↓ arrow keys to navigate</div>
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.dots = document.querySelector('.nav-dots');
+                this.current = 0;
+                this.setupObserver();
+                this.setupKeyboard();
+                this.setupDots();
+                this.hideHintOnScroll();
+                this.setupEditableText();
+            }
+            setupObserver() {
+                const obs = new IntersectionObserver(entries => {
+                    entries.forEach(e => {
+                        if (e.isIntersecting) {
+                            e.target.classList.add('visible');
+                            this.current = [...this.slides].indexOf(e.target);
+                            this.updateDots();
+                        }
+                    });
+                }, { threshold: 0.5 });
+                this.slides.forEach(s => obs.observe(s));
+            }
+            setupKeyboard() {
+                window.addEventListener('keydown', e => {
+                    if (e.target.isContentEditable) return;
+                    
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault(); this.go(this.current + 1);
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault(); this.go(this.current - 1);
+                    }
+                });
+            }
+            setupDots() {
+                this.slides.forEach((s, i) => {
+                    const dot = document.createElement('div');
+                    dot.className = 'dot';
+                    dot.onclick = () => this.go(i);
+                    this.dots.appendChild(dot);
+                });
+                this.updateDots();
+            }
+            updateDots() {
+                this.dots.querySelectorAll('.dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === this.current);
+                });
+            }
+            go(i) {
+                if (i >= 0 && i < this.slides.length) {
+                    this.slides[i].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+            hideHintOnScroll() {
+                const hint = document.querySelector('.keyboard-hint');
+                if (!hint) return;
+                let hidden = false;
+                window.addEventListener('scroll', () => {
+                    if (!hidden && window.scrollY > 50) {
+                        hint.style.opacity = '0';
+                        hidden = true;
+                    }
+                });
+            }
+            setupEditableText() {
+                const textElements = document.querySelectorAll('h1, h2, h3, p, .label, .big-num, td, th');
+                textElements.forEach(el => {
+                    el.setAttribute('contenteditable', 'true');
+                    el.style.outline = 'none';
+                    el.addEventListener('focus', () => el.style.background = 'rgba(255,255,255,0.05)');
+                    el.addEventListener('blur', () => el.style.background = 'transparent');
+                });
+            }
+        }
+
+        class ScaleController {
+            constructor(refWidth = 1280, refHeight = 720) {
+                this.refW = refWidth;
+                this.refH = refHeight;
+                this.inners = document.querySelectorAll('.slide-inner');
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+            isMobile() { return window.innerWidth < 768; }
+            resize() {
+                if (this.isMobile()) {
+                    this.inners.forEach(inner => { inner.style.transform = ''; });
+                    return;
+                }
+                const s = Math.min(window.innerWidth / this.refW, window.innerHeight / this.refH);
+                this.inners.forEach(inner => { inner.style.transform = `scale(${s})`; });
+            }
+        }
+
+        new SlidePresentation();
+        new ScaleController();
+    </script>
+
+</body></html>
