@@ -20,7 +20,26 @@
         
         html, body { margin: 0; padding: 0; height: 100%; overflow-x: hidden; background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); }
         html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .fullscreen-btn {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 200;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
 
+        .fullscreen-btn:hover {
+            filter: brightness(1.1);
+        }
         .slide {
             width: 100vw; height: 100vh; height: 100dvh;
             scroll-snap-align: start;
@@ -161,6 +180,7 @@
 </head>
 <body>
     <nav class="nav-dots"></nav>
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">Fullscreen</button>
 
     <!-- Slide 1: Title -->
     <section class="slide">
@@ -622,7 +642,14 @@
                 this.inners.forEach(inner => { inner.style.transform = `scale(${s})`; });
             }
         }
-
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
         new SlidePresentation();
         new ScaleController();
     </script>
